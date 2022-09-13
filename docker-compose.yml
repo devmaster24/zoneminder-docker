@@ -1,0 +1,48 @@
+version: '3.3'
+services:
+  zoneminder:
+    build: "./build/"
+    container_name: zoneminder
+    image: zoneminder
+    restart: unless-stopped
+    networks:
+      zm-net:
+        ipv4_address: "172.20.0.3"
+    ports:
+      - "9002:9000"
+      - "8080:80"
+    privileged: false
+    shm_size: 4G
+    environment:
+      TZ: "America/Chicago"
+    volumes:
+      - type: bind
+        source: "/some/path/on/your/computer/images"
+        target: "/var/cache/zoneminder/images"
+      - type: bind
+        source: "/some/path/on/your/computer/events"
+        target: "/var/cache/zoneminder/events"
+  db:
+    container_name: zm_maria_db
+    image: mariadb:jammy
+    restart: unless-stopped
+    networks:
+      zm-net:
+        ipv4_address: "172.20.0.4"
+    environment:
+      TZ: "America/Chicago"
+      MARIADB_USER: "zmuser"
+      MARIADB_PASSWORD: "<PICK_A_PASSWORD>"
+      MARIADB_ROOT_PASSWORD: "<PICK_A_PASSWORD>"
+      MARIADB_DATABASE: "zm"
+    volumes:
+      - type: bind
+        source: "/some/path/on/your/computer/zm_db"
+        target: "/var/lib/mysql"
+networks:
+  zm-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
