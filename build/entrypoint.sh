@@ -6,6 +6,9 @@
 # It looks in common places for the files & executables it needs
 # and thus should be compatible with major Linux distros.
 
+# Pulled from: https://github.com/ZoneMinder/zmdockerfiles/blob/master/utils/entrypoint.sh
+# This script has a few tweaks to work with debian 13
+
 ###############
 # SUBROUTINES #
 ###############
@@ -246,12 +249,7 @@ start_mysql () {
 
     if [ "$(mysql_datadir_exists)" -eq "0" ]; then
         echo " * First run of MYSQL, initializing DB."
-        MYSQL_INSTALL_DB=$(type -p mysql_install_db)
-        if [ "$(use_mysql_install_db)" -eq "1" ]; then
-            ${MYSQL_INSTALL_DB} --user=mysql --datadir=/var/lib/mysql/ > /dev/null 2>&1
-        else
-            ${MYSQLD} --initialize-insecure --user=mysql --datadir=/var/lib/mysql/ > /dev/null 2>&1
-        fi
+        mariadb-install-db --user=mysql --datadir=/var/lib/mysql/ > /dev/null 2>&1
     elif [ -e ${mysocklockfile} ]; then
         echo " * Removing stale lock file"
         rm -f ${mysocklockfile}
