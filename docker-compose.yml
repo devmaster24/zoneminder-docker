@@ -2,7 +2,7 @@ services:
   zoneminder:
     build: "./build/"
     container_name: zoneminder
-    image: zoneminder:v1.0.7
+    image: zoneminder:v1.0.0
     restart: unless-stopped
     ports:
       - "9002:9000"
@@ -12,6 +12,8 @@ services:
     environment:
       TZ: "America/Chicago"
     volumes:
+      # Temporary fix to enable API due to debian packaging bug
+      - ./zm-api.conf:/etc/apache2/conf-enabled/zm-api.conf:ro
       - type: bind
         source: "/some/path/on/your/computer/images"
         target: "/var/cache/zoneminder/images"
@@ -21,3 +23,4 @@ services:
       - type: bind
         source: "/some/path/on/your/computer/zm_db"
         target: "/var/lib/mysql"
+
